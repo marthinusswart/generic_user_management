@@ -32,3 +32,16 @@ class Users(Resource):
             db.session.add(new_user)
             db.session.commit()
             return {'result': 'User created', 'JSON received': new_user_json}
+
+
+class UserManagement(Resource):
+    def get(self, tenant_key, user_id):
+        from .models.generic_user_management_models import User
+        users = User.query.filter_by(tenant_key=tenant_key, id=user_id)
+        result = [u.as_json() for u in users]
+
+        if len(result) == 0:
+            return {'result': 'No user by that id', 'Id received': user_id}, 404
+
+        print(tenant_key)
+        return jsonify(result)
