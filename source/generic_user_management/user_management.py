@@ -37,11 +37,37 @@ class Users(Resource):
 class UserManagement(Resource):
     def get(self, tenant_key, user_id):
         from .models.generic_user_management_models import User
-        users = User.query.filter_by(tenant_key=tenant_key, id=user_id)
-        result = [u.as_json() for u in users]
+        user = User.query.filter_by(tenant_key=tenant_key, id=user_id).first()
 
-        if len(result) == 0:
+        if not user:
             return {'result': 'No user by that id', 'Id received': user_id}, 404
 
-        print(tenant_key)
-        return jsonify(result)
+        return jsonify(user.as_json())
+
+    def put(self, tenant_key, user_id):
+        from . import db
+        from .models.generic_user_management_models import User
+        user = User.query.filter_by(tenant_key=tenant_key, id=user_id).first()
+
+        if not user:
+            return {'result': 'No user by that id', 'Id received': user_id}, 404
+
+        user_json = request.get_json()
+        user.first_name = user_json['first_name']
+        user.last_name = user_json['last_name']
+        user.email = user_json['email']
+        user.mobile = user_json['mobile']
+
+        db.session.commit()
+        return {'result': 'User updated', 'JSON received': user_json}
+
+    def delete(self, tenant_key, user_id):
+        from . import db
+        from .models.generic_user_management_models import User
+        user = User.query.filter_by(tenant_key=tenant_key, id=user_id).first()
+
+        if not user:
+            return {'result': 'No user by that id', 'Id received': user_id}, 404
+        db.session.delete(user)
+        db.session.commit()
+        return {'result': 'User deleted', 'Id received': user_id}
