@@ -9,7 +9,7 @@ DB_NAME = "database/user_database.db"
 
 
 def create_database(app):
-    if not path.exists('./' + DB_NAME):
+    if not path.exists('generic_user_management/' + DB_NAME):
         db.create_all(app=app)
         print('Created Database!')
 
